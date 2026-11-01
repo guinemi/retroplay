@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RetroPlay - Player</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    background: #10101b;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+}
+
+a { color: #00e5a0; }
+
+button {
+    padding: 14px 25px;
+    border: 0;
+    border-radius: 8px;
+    background: #00e5a0;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px;
+}
+
+#game {
+    width: 100%;
+    max-width: 950px;
+    height: 550px;
+    margin: 20px auto;
+    background: black;
+}
+
+#status {
+    color: #ffd166;
+}
+</style>
+</head>
+
+<body>
+
+<a href="index.html">← VOLTAR</a>
+
+<h1 id="titulo">RetroPlay</h1>
+
+<div id="status"></div>
+
+<div id="player"></div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const jogo = params.get("game");
+
+const jogos = {
+    fifa: {
+        nome: "FIFA Street - PSP",
+        console: "psp"
+    },
+    zelda: {
+        nome: "The Legend of Zelda - NES",
+        console: "nes"
+    }
+};
+
+const selecionado = jogos[jogo];
+
+if (!selecionado) {
+    document.getElementById("titulo").textContent =
+        "Jogo não encontrado";
+} else {
+    document.getElementById("titulo").textContent =
+        selecionado.nome;
+
+    document.getElementById("status").textContent =
+        "Preparando jogo...";
+}
+
+function iniciar() {
+    if (selecionado.console === "psp") {
+        window.location.href =
+            "https://root-hunter.github.io/ppsspp-web/";
+        return;
+    }
+
+    const arquivo = document.createElement("input");
+    arquivo.type = "file";
+    arquivo.accept = ".nes";
+
+    arquivo.onchange = function() {
+        const rom = arquivo.files[0];
+
+        if (!rom) return;
+
+        window.EJS_player = "#game";
+        window.EJS_core = "nes";
+        window.EJS_gameUrl = URL.createObjectURL(rom);
+        window.EJS_pathtodata =
+            "https://cdn.emulatorjs.org/stable/data/";
+
+        const script = document.createElement("script");
+        script.src = window.EJS_pathtodata + "loader.js";
+
+        script.onerror = () => {
+            document.getElementById("status").textContent =
+                "Erro ao carregar o emulador.";
+        };
+
+        document.body.appendChild(script);
+        document.getElementById("status").textContent =
+            "Carregando Zelda...";
+    };
+
+    arquivo.click();
+}
+
+if (selecionado) {
+    const botao = document.createElement("button");
+    botao.textContent = "▶ JOGAR";
+    botao.onclick = iniciar;
+    document.getElementById("player").appendChild(botao);
+}
+</script>
+
+<div id="game"></div>
+
+</body>
+</html>
